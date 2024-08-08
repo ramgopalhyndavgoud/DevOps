@@ -1,45 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_HOME = "C:\\Program Files\\nodejs"
+        DEPLOY_SCRIPTS = "C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp\\scripts"
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'staging', 'prod'], description: 'Choose deployment environment')
+    }
+
     stages {
         stage('Build') {
             steps {
                 script {
-                    bat 'npm install'
-                    bat 'npm run build'
+                    bat '"%NODE_HOME%\\npm" install'
+                    bat '"%NODE_HOME%\\npm" run build'
                 }
             }
         }
 
-        stage('Deploy to Development') {
-            when {
-                branch 'development'  // Adjust branch name if necessary
-            }
+        stage('Deploy') {
             steps {
                 script {
-                    bat 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp\\scripts\\deploy-dev.bat'
-                }
-            }
-        }
-
-        stage('Deploy to Staging') {
-            when {
-                branch 'staging'
-            }
-            steps {
-                script {
-                    bat 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp\\scripts\\deploy-staging.bat'
-                }
-            }
-        }
-
-        stage('Deploy to Production') {
-            when {
-                branch 'main'  // Adjust if your production branch has a different name
-            }
-            steps {
-                script {
-                    bat 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp\\scripts\\deploy-prod.bat'
+                    def scriptPath = ""
+                    if (params.ENVIRONMENT == 'prod') {
+                        scriptPath = "${DEPLOY_SCRIPTS}\\deploy-prod.bat"
+                    } else if (params.ENVIRONMENT == 'staging') {
+                        scriptPath = "${DEPLOY_SCRIPTS}\\deploy-staging.bat"
+                    } else {
+                        scriptPath = "${DEPLOY_SCRIPTS}\\deploy-dev.bat"
+                    }
+                    bat scriptPath
                 }
             }
         }
