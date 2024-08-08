@@ -3,7 +3,8 @@ pipeline {
     
     environment {
         // Define environment variables if needed
-        PROJECT_DIR = 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp'
+        PROJECT_DIR = 'C:/Users/sreenivasrao/Desktop/1/my-webapp'
+        JENKINS_WORKSPACE = 'C:/ProgramData/Jenkins/.jenkins/workspace/web-app'
     }
     
     stages {
@@ -17,8 +18,12 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    // Convert Windows paths to Unix paths for Docker
+                    def unixProjectDir = PROJECT_DIR.replace('\\', '/').replaceFirst(/^C:/, '/c')
+                    def unixWorkspaceDir = JENKINS_WORKSPACE.replace('\\', '/').replaceFirst(/^C:/, '/c')
+                    
                     // Use Docker to run the build
-                    docker.image('node:latest').inside("-v ${env.PROJECT_DIR}:/usr/src/app -w /usr/src/app") {
+                    docker.image('node:latest').inside("-v ${unixProjectDir}:/usr/src/app -w /usr/src/app") {
                         sh 'npm install'
                     }
                 }
@@ -29,7 +34,7 @@ pipeline {
             steps {
                 script {
                     // Use Docker to run tests
-                    docker.image('node:latest').inside("-v ${env.PROJECT_DIR}:/usr/src/app -w /usr/src/app") {
+                    docker.image('node:latest').inside("-v ${unixProjectDir}:/usr/src/app -w /usr/src/app") {
                         sh 'npm test'
                     }
                 }
@@ -40,7 +45,6 @@ pipeline {
             steps {
                 script {
                     // Deployment steps can vary based on your needs
-                    // For example, copying files to a deployment server or using a deploy script
                     echo 'Deploying application...'
                     // Example: sh './deploy.sh'
                 }
