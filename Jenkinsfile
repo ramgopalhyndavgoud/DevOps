@@ -1,23 +1,47 @@
 pipeline {
     agent any
+    
+    environment {
+        DOCKER_IMAGE = 'my-web-app'
+    }
+    
     stages {
-        stage('Install Dependencies') {
+        stage('Checkout') {
             steps {
-                bat 'echo Installing dependencies'
-                bat 'npm install'
+                git branch: 'main', url: 'https://github.com/ramgopalhyndavgoud/DevOps.git'
             }
         }
+        
         stage('Build') {
             steps {
-                bat 'echo Building the project'
-                bat 'npm run build'
+                script {
+                    docker.build(DOCKER_IMAGE)
+                }
             }
         }
+        
+        stage('Test') {
+            steps {
+                script {
+                    // Run tests here
+                    echo 'Running tests...'
+                }
+            }
+        }
+        
         stage('Deploy') {
             steps {
-                bat 'echo Deploying the project'
-                bat 'npm run deploy'
+                script {
+                    // Add deployment steps here if needed
+                    echo 'Deploying to Kubernetes...'
+                }
             }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
         }
     }
 }
