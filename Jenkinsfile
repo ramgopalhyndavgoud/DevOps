@@ -1,32 +1,23 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Install Dependencies') {
             steps {
-                bat '"C:\\Program Files\\nodejs\\npm" install'
+                bat 'echo Installing dependencies'
+                bat 'npm install'
             }
         }
         stage('Build') {
             steps {
-                bat '"C:\\Program Files\\nodejs\\npx" webpack --config webpack.config.js'
+                bat 'echo Building the project'
+                bat 'npm run build'
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploy stage will be implemented'
+                bat 'echo Deploying the project'
+                bat 'npm run deploy'
             }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
         }
     }
 }
