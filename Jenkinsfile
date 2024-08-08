@@ -12,13 +12,14 @@ pipeline {
 
     stages {
         stage('Build') {
-            steps {
-                script {
-                    bat '"%NODE_HOME%\\npm" install'
-                    bat '"%NODE_HOME%\\npm" run build'
-                }
-            }
+    steps {
+        script {
+            bat '"%NODE_HOME%\\npm" install'
+            bat '"%NODE_HOME%\\npx" webpack --config webpack.config.js'
         }
+    }
+}
+
 
         stage('Deploy') {
             steps {
@@ -39,7 +40,7 @@ pipeline {
 
     post {
         always {
-            cleanWs()  // Clean workspace after build
+            cleanWs()  
         }
     }
 }
