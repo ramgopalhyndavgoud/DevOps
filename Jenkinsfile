@@ -1,11 +1,32 @@
 pipeline {
     agent any
 
+    environment {
+        NODE_IMAGE = 'node:latest'
+        APP_DIR = 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp'
+    }
+
     stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    
+                    checkout scm
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 script {
-                    def app = docker.build("my-webapp")
+                    
+                    bat """
+                    docker run -d -t ^
+                        -v ${APP_DIR}:/usr/src/app ^
+                        -w /usr/src/app ^
+                        ${NODE_IMAGE} ^
+                        cmd.exe /c npm install
+                    """
                 }
             }
         }
@@ -13,9 +34,14 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    docker.image("my-webapp").inside {
-                        sh 'npm test'
-                    }
+                    
+                    bat """
+                    docker run -d -t ^
+                        -v ${APP_DIR}:/usr/src/app ^
+                        -w /usr/src/app ^
+                        ${NODE_IMAGE} ^
+                        cmd.exe /c npm test
+                    """
                 }
             }
         }
@@ -23,10 +49,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    docker.image("my-webapp").inside {
-                        sh 'docker run -d -p 3000:3000 my-webapp'
-                    }
+                    
+                    echo 'Deploying application...'
                 }
+            }
+        }
+    }
+
+    post {
+        always {
+            
+            script {
+                bat 'docker system prune -af'
             }
         }
     }
