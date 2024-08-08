@@ -11,15 +11,20 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
             steps {
                 script {
-                    // Run Docker container and start application
-                    docker.image("my-webapp").inside('-w /app') {
-                        sh 'npm start'
+                    docker.image('node:latest').inside("-v C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp:/usr/src/app") {
+                        sh 'npm install'
                     }
                 }
             }
         }
     }
 }
+                }
+                }
