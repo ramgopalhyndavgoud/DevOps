@@ -1,30 +1,59 @@
 pipeline {
     agent any
-
+    
+    environment {
+        // Define environment variables if needed
+        PROJECT_DIR = 'C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp'
+    }
+    
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Build Docker image
-                    docker.build("my-webapp")
-                }
+                // Check out the source code from Git
+                git 'https://github.com/ramgopalhyndavgoud/DevOps.git'
             }
         }
 
-        pipeline {
-    agent any
-
-    stages {
         stage('Build') {
             steps {
                 script {
-                    docker.image('node:latest').inside("-v C:\\Users\\sreenivasrao\\Desktop\\1\\my-webapp:/usr/src/app") {
+                    // Use Docker to run the build
+                    docker.image('node:latest').inside("-v ${env.PROJECT_DIR}:/usr/src/app -w /usr/src/app") {
                         sh 'npm install'
                     }
                 }
             }
         }
+
+        stage('Test') {
+            steps {
+                script {
+                    // Use Docker to run tests
+                    docker.image('node:latest').inside("-v ${env.PROJECT_DIR}:/usr/src/app -w /usr/src/app") {
+                        sh 'npm test'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deployment steps can vary based on your needs
+                    // For example, copying files to a deployment server or using a deploy script
+                    echo 'Deploying application...'
+                    // Example: sh './deploy.sh'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
     }
 }
-                }
-                }
